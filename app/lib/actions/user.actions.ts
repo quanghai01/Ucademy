@@ -16,7 +16,7 @@ export default async function createUser(params: TCreateUserParams) {
     });
 
     return newUser;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("❌ Create user failed:", error);
     throw error;
   }
