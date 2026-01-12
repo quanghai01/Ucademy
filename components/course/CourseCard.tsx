@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Course } from "@/app/types";
-import { Award, Eye, Star, User } from "lucide-react";
+import { Eye, Star, User } from "lucide-react";
 
 interface CourseCardProps {
   course: Course;

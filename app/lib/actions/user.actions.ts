@@ -1,6 +1,6 @@
 "use server";
 
-import User, { IUser } from "@/database/user.model";
+import User from "@/database/user.model";
 import { connectToDatabase } from "../mongoose";
 import { TCreateUserParams } from "@/app/types";
 

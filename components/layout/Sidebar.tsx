@@ -56,8 +56,8 @@ const Sidebar = () => {
         cademy
       </div>
       <nav className="flex-1 space-y-1">
-        {menuItems.map((item) => (
-          <ActiveLink item={item} />
+        {menuItems.map((item, index) => (
+          <ActiveLink key={index} item={item} />
         ))}
       </nav>
       <div className="p-3 flex items-center justify-between">
