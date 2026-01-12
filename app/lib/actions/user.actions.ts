@@ -5,7 +5,7 @@ import { TCreateUserParams } from "@/app/types";
 
 export default async function createUser(params: TCreateUserParams) {
   try {
-    await connectToDatabase();
+    connectToDatabase();
 
     const existing = await User.findOne({ clerkId: params.clerkId });
     if (existing) return existing;
