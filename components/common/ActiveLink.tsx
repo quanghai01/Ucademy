@@ -25,7 +25,7 @@ const AnimatedIcon = ({
     <span
       className={`
         inline-flex
-        transition-all duration-300 ease-in-out
+      
         transition-colors duration-500 ease-linear
         ${show ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}
         ${active ? "text-indigo-500" : "text-gray-400 dark:text-gray-500"}

@@ -48,7 +48,7 @@ const Sidebar = () => {
 
   return (
     <aside
-      className="bg-card border-r border-border text-card-foreground p-4 flex flex-col bg-accent
+      className="bg-card border-r border-border text-card-foreground p-4 flex flex-col
                    md:h-screen md:min-h-screen h-auto max-h-[100vh] overflow-y-auto"
     >
       <div className="mb-6 text-lg font-bold">
