@@ -1,5 +1,6 @@
 import createUser from "@/app/lib/actions/user.actions";
 import { WebhookEvent } from "@clerk/nextjs/server";
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { Webhook } from "svix";
 
@@ -10,9 +11,9 @@ export async function POST(req: Request) {
     return new Response("WEBHOOK_SECRET is not set", { status: 500 });
   }
 
-  const svix_id = req.headers.get("svix-id");
-  const svix_timestamp = req.headers.get("svix-timestamp");
-  const svix_signature = req.headers.get("svix-signature");
+  const svix_id = headers().get("svix-id");
+  const svix_timestamp = headers().get("svix-timestamp");
+  const svix_signature = headers().get("svix-signature");
 
   if (!svix_id || !svix_timestamp || !svix_signature) {
     return new Response("Missing svix headers", { status: 400 });
