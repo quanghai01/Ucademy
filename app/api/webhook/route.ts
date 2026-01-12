@@ -1,4 +1,6 @@
+import createUser from "@/app/lib/actions/user.actions";
 import { WebhookEvent } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 import { Webhook } from "svix";
 
 const webhookSecret: string = process.env.WEBHOOK_SECRET || "";
@@ -28,15 +30,27 @@ export async function POST(req: Request) {
     return new Response("Bad Request", { status: 400 });
   }
 
-  const eventType = msg.type;
   switch (msg.type) {
-    case "user.created":
-      console.log("User created:", msg.data);
-      break;
+    case "user.created": {
+      const data = msg.data;
+      const user = await createUser({
+        clerkId: data.id,
+        email: data.email_addresses[0].email_address,
+        name: `${data.first_name ?? ""} ${data.last_name ?? ""}`.trim(),
+        avatar: data.image_url,
+        username: data.username ?? undefined, //
+      });
 
-    case "user.updated":
+      return NextResponse.json({
+        message: "Ok",
+        user,
+      });
+    }
+
+    case "user.updated": {
       console.log("User updated:", msg.data);
       break;
+    }
 
     default:
       console.log("Unhandled event:", msg.type);

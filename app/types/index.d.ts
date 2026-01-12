@@ -23,8 +23,8 @@ interface Course {
 
 interface TCreateUserParams {
   clerkId: string;
-  username: string;
   email: string;
+  username?: string | null;
   name?: string;
   avatar?: string;
 }
