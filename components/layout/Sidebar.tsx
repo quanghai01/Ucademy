@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 
 import {
@@ -7,11 +8,13 @@ import {
   Receipt,
   GraduationCap,
   LibraryBig,
+  LogIn,
 } from "lucide-react";
 
 import ActiveLink from "../common/ActiveLink";
-import { UserButton } from "@clerk/nextjs";
+import { useAuth, UserButton } from "@clerk/nextjs";
 import { ModeToggle } from "../modeToggle/ModeToggle";
+import Link from "next/link";
 const Sidebar = () => {
   const menuItems = [
     {
@@ -46,6 +49,8 @@ const Sidebar = () => {
     },
   ];
 
+  const { userId } = useAuth();
+
   return (
     <aside
       className="bg-card border-r border-border text-card-foreground p-4 flex flex-col
@@ -61,7 +66,14 @@ const Sidebar = () => {
         ))}
       </nav>
       <div className="p-3 flex items-center justify-between">
-        <UserButton />
+        {userId ? (
+          <UserButton />
+        ) : (
+          <Link href="/sign-in">
+            <LogIn />
+          </Link>
+        )}
+
         <ModeToggle />
       </div>
       <div className="mt-auto text-sm text-muted-foreground">
