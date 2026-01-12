@@ -38,15 +38,20 @@ export async function POST(req: Request) {
     case "user.created": {
       const data = msg.data;
 
-      await createUser({
+      const user = await createUser({
         clerkId: data.id,
         email: data.email_addresses[0].email_address,
         name: `${data.first_name ?? ""} ${data.last_name ?? ""}`.trim(),
         avatar: data.image_url,
         username: data.username ?? undefined,
       });
+      console.log("🚀 route.ts:48 - user:", user, data);
+      console.log("[WEBHOOK RECEIVED]", msg.type, JSON.stringify(msg.data));
 
-      return NextResponse.json({ message: "User created" });
+      return NextResponse.json({
+        message: "User created",
+        user, // gộp vào object
+      });
     }
 
     case "user.updated": {
