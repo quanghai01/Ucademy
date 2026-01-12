@@ -29,10 +29,18 @@ export async function POST(req: Request) {
   }
 
   const eventType = msg.type;
-  if (eventType === "user.created") {
-    console.log("msg data", msg.data);
+  switch (msg.type) {
+    case "user.created":
+      console.log("User created:", msg.data);
+      break;
+
+    case "user.updated":
+      console.log("User updated:", msg.data);
+      break;
+
+    default:
+      console.log("Unhandled event:", msg.type);
   }
-  console.log("🚀 route.ts:32 - eventType:", eventType);
 
   // Rest
 
