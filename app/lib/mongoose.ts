@@ -1,22 +1,25 @@
 import mongoose from "mongoose";
 
-let isConnected = false;
+const MONGODB_URL = process.env.MONGODB_URL!;
 
 export const connectToDatabase = async () => {
-  if (!process.env.MONGODB_URL) {
+  if (!MONGODB_URL) {
     throw new Error("MONGODB_URL is not set");
   }
 
-  if (isConnected) {
+  // 0 = disconnected
+  // 1 = connected
+  // 2 = connecting
+  // 3 = disconnecting
+  if (mongoose.connection.readyState === 1) {
     return;
   }
 
   try {
-    await mongoose.connect(process.env.MONGODB_URL, {
+    await mongoose.connect(MONGODB_URL, {
       dbName: "ucademy",
     });
 
-    isConnected = true;
     console.log("MongoDB connected");
   } catch (error) {
     console.error("MongoDB connection error:", error);
