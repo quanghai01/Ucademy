@@ -24,6 +24,7 @@ export async function POST(req: Request) {
       "svix-signature": svix_signature,
     }) as WebhookEvent;
   } catch (err) {
+    console.error("[WEBHOOK_ERROR]", err);
     return new Response("Bad Request", { status: 400 });
   }
 
