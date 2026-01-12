@@ -1,6 +1,5 @@
 import Sidebar from "@/components/layout/Sidebar";
 import React from "react";
-import { connectToDatabase } from "../lib/mongoose";
 
 const layout = ({ children }: { children: React.ReactNode }) => {
   return (
