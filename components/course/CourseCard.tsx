@@ -12,107 +12,160 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Course } from "@/app/types";
-import { Eye, Star, User } from "lucide-react";
+import { Eye, Star, TrendingUp, Clock } from "lucide-react";
 
 interface CourseCardProps {
   course: Course;
 }
-function getLevelBadgeClass(level: string) {
+
+function getLevelConfig(level: string) {
   switch (level.toLowerCase()) {
     case "beginner":
-      return "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100";
+      return {
+        bg: "bg-gradient-to-r from-emerald-500/90 to-teal-500/90",
+        text: "text-white",
+        label: "Cơ bản"
+      };
     case "intermediate":
-      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100";
+      return {
+        bg: "bg-gradient-to-r from-amber-500/90 to-orange-500/90",
+        text: "text-white",
+        label: "Trung cấp"
+      };
     case "advanced":
-      return "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100";
+      return {
+        bg: "bg-gradient-to-r from-rose-500/90 to-pink-500/90",
+        text: "text-white",
+        label: "Nâng cao"
+      };
     default:
-      return "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200";
+      return {
+        bg: "bg-gradient-to-r from-gray-500/90 to-slate-500/90",
+        text: "text-white",
+        label: level
+      };
   }
 }
+
 export default function CourseCard({ course }: CourseCardProps) {
+  const levelConfig = getLevelConfig(course.level || "");
+  const avgRating = course.rating || 0;
+  const hasDiscount = course.sale_price && course.price && course.sale_price < course.price;
+  const discountPercent = hasDiscount
+    ? Math.round(((course.price! - course.sale_price!) / course.price!) * 100)
+    : 0;
+
   return (
-    <Card className="group overflow-hidden rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 p-2">
-      <div className="relative h-40 w-full overflow-hidden rounded-t-xl">
+    <Card className="group overflow-hidden rounded-2xl border-2 border-gray-100 dark:border-gray-800 hover:border-indigo-200 dark:hover:border-indigo-800 shadow-lg hover:shadow-2xl hover:shadow-indigo-200/50 dark:hover:shadow-indigo-900/30 transition-all duration-300 hover:-translate-y-2 bg-white dark:bg-gray-900">
+      {/* Image Section */}
+      <div className="relative h-48 w-full overflow-hidden">
         <Image
-          src={course.thumbnail}
+          src={course.image || "https://picsum.photos/400/300?random=1"}
           alt={course.title}
           fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          className="object-cover transition-transform duration-500 group-hover:scale-110"
         />
 
-        {course.isNew && (
-          <Badge className="absolute left-3 top-3 bg-green-500 text-white px-2 py-1 text-xs rounded-full">
-            NEW
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-300" />
+
+        {/* Level Badge */}
+        {course.level && (
+          <Badge className={`absolute top-3 left-3 ${levelConfig.bg} ${levelConfig.text} px-3 py-1.5 text-xs font-semibold shadow-lg border-0`}>
+            {levelConfig.label}
           </Badge>
         )}
+
+        {/* Discount Badge */}
+        {hasDiscount && (
+          <Badge className="absolute top-3 right-3 bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1.5 text-xs font-bold shadow-lg border-0 animate-pulse">
+            -{discountPercent}%
+          </Badge>
+        )}
+
+        {/* Views */}
+        <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
+          <Eye className="w-3.5 h-3.5 text-white" />
+          <span className="text-xs font-medium text-white">{course.views?.toLocaleString() || 0}</span>
+        </div>
       </div>
 
-      <CardHeader className="px-2 pt-3 pb-1 space-y-1">
-        <CardTitle className="line-clamp-2 text-base font-semibold text-gray-900 dark:text-white">
+      {/* Content Section */}
+      <CardHeader className="px-5 pt-4 pb-3 space-y-3">
+        <CardTitle className="line-clamp-2 text-lg font-bold text-gray-900 dark:text-white leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
           {course.title}
         </CardTitle>
 
-        {course.level && (
-          <Badge
-            variant="secondary"
-            className={`mt-1 px-2 py-1 text-xs rounded-full ${getLevelBadgeClass(
-              course.level
-            )}`}
-          >
-            {course.level}
-          </Badge>
-        )}
-
-        {course.rating !== undefined && course.reviewCount !== undefined && (
-          <div className="flex items-center gap-1 mt-1">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star
-                key={i}
-                className={`w-4 h-4 ${
-                  i < Math.round(course.rating!)
-                    ? "text-yellow-400"
+        {/* Rating */}
+        {avgRating > 0 && (
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-0.5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star
+                  key={i}
+                  className={`w-4 h-4 ${i < Math.round(avgRating)
+                    ? "text-yellow-400 fill-yellow-400"
                     : "text-gray-300 dark:text-gray-600"
-                }`}
-              />
-            ))}
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              ({course.reviewCount})
+                    }`}
+                />
+              ))}
+            </div>
+            <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              {avgRating.toFixed(1)}
             </span>
           </div>
         )}
       </CardHeader>
 
-      <CardContent className="px-2 py-2 text-sm text-gray-600 dark:text-gray-300 space-y-2">
-        {course.instructor && (
-          <div className="flex items-center gap-2">
-            <User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-            <span>{course.instructor}</span>
+      <CardContent className="px-5 py-3 space-y-3">
+        {/* Author - if exists */}
+        {course.author && (
+          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+              {course.author[0].toUpperCase()}
+            </div>
+            <span className="font-medium">{course.author}</span>
           </div>
         )}
 
+        {/* Divider */}
+        <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent" />
+
+        {/* Price Section */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Eye className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-            <span>{course.followers.toLocaleString()}</span>
+            <Clock className="w-4 h-4 text-indigo-500" />
+            <span className="text-xs text-gray-500 dark:text-gray-400">Truy cập trọn đời</span>
           </div>
 
-          {course.price !== undefined && (
-            <div className="font-semibold text-indigo-600 dark:text-indigo-400">
-              {typeof course.price === "number"
-                ? new Intl.NumberFormat("vi-VN", {
-                    style: "currency",
-                    currency: "VND",
-                  }).format(course.price)
-                : course.price}
-            </div>
-          )}
+          <div className="flex flex-col items-end">
+            {hasDiscount ? (
+              <>
+                <span className="text-xs line-through text-gray-400 dark:text-gray-500">
+                  {course.price?.toLocaleString()}đ
+                </span>
+                <span className="text-lg font-bold bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">
+                  {course.sale_price?.toLocaleString()}đ
+                </span>
+              </>
+            ) : course.price ? (
+              <span className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                {course.price.toLocaleString()}đ
+              </span>
+            ) : (
+              <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                Miễn phí
+              </span>
+            )}
+          </div>
         </div>
       </CardContent>
 
-      <CardFooter className="px-2 pb-4">
-        <Link href={`/courses/${course.id}`} className="w-full">
-          <Button className="w-full bg-gradient-primary to-cyan-500 text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg transition-shadow duration-200">
-            Xem chi tiết
+      <CardFooter className="px-5 pb-5 pt-2">
+        <Link href={`/course/${course.slug}`} className="w-full">
+          <Button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold py-6 rounded-xl shadow-lg hover:shadow-xl hover:shadow-indigo-300/50 dark:hover:shadow-indigo-900/50 transition-all duration-300 group-hover:scale-[1.02]">
+            <span>Xem chi tiết</span>
+            <TrendingUp className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
           </Button>
         </Link>
       </CardFooter>

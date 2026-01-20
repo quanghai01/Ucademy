@@ -5,7 +5,12 @@ const nextConfig = {
     serverActions: false, // nếu liên quan
   },
   images: {
-    domains: ["source.unsplash.com", "images.unsplash.com", "picsum.photos"],
+    domains: [
+      "source.unsplash.com",
+      "images.unsplash.com",
+      "picsum.photos",
+      "images.pexels.com",
+    ],
   },
 };
 

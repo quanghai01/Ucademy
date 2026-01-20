@@ -3,7 +3,9 @@ import React from "react";
 
 import CourseGrid from "@/components/course/CourseGrid";
 
+
 const page = async () => {
+  
   return (
     <div>
       <Heading>Khám phá</Heading>

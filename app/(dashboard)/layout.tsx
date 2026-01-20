@@ -1,11 +1,15 @@
 import Sidebar from "@/components/layout/Sidebar";
 import React from "react";
 
-const layout = ({ children }: { children: React.ReactNode }) => {
+const layout = async ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="wrapper grid grid-cols-[300px,1fr] md:grid-cols-[250px,1fr] sm:grid-cols-1 relative z-10">
-      <Sidebar />
-      <main className="p-4">{children}</main>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50/30 dark:from-gray-950 dark:to-indigo-950/20">
+      <div className="max-w-[1440px] mx-auto flex">
+        <Sidebar />
+        <main className="flex-1 min-h-screen p-6">
+          {children}
+        </main>
+      </div>
     </div>
   );
 };

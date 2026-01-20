@@ -1,14 +1,21 @@
-"use client";
+import { getUserInfo } from "@/app/lib/actions/user.actions";
+import PageNotFound from "@/app/not-found";
+import { EUserRole } from "@/app/types/enums";
+import { auth } from "@clerk/nextjs/server";
 
-import { useUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
-
 import React from "react";
 
-const AdminLayout = ({ children }: { children: React.ReactNode }) => {
-  const { isSignedIn } = useUser();
+const AdminLayout = async ({ children }: { children: React.ReactNode }) => {
+  const session = await auth();
+  if (!session?.userId) {
+    redirect("/sign-in");
+  }
 
-  if (!isSignedIn) {
+  const user = await getUserInfo({ clerkId: session.userId });
+  if (user && user.role !== EUserRole.ADMIN) return <PageNotFound />;
+
+  if (!user) {
     redirect("/sign-in");
   }
 

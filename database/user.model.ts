@@ -1,16 +1,17 @@
 import { EUserRole, EUserStatus } from "@/app/types/enums";
-import { model, models, Schema } from "mongoose";
+import { Document, model, models, Schema } from "mongoose";
 
 export interface IUser extends Document {
   clerkId: string;
   name?: string;
-  username?: string | null;
+  username?: string; // ✅ không dùng null
   email: string;
   avatar?: string;
   courses: Schema.Types.ObjectId[];
   status: EUserStatus;
   role: EUserRole;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const userSchema = new Schema<IUser>(
@@ -29,7 +30,7 @@ const userSchema = new Schema<IUser>(
     username: {
       type: String,
       unique: true,
-      sparse: true,
+      sparse: true, // ⭐ quan trọng
       trim: true,
     },
 
@@ -65,10 +66,9 @@ const userSchema = new Schema<IUser>(
     },
   },
   {
-    timestamps: true, // ⭐ thay cho createAt
+    timestamps: true,
   }
 );
 
-const User = models.User || model("User", userSchema);
-
+const User = models.User || model<IUser>("User", userSchema);
 export default User;
