@@ -11,7 +11,7 @@ export async function createUser(params: TCreateUserParams) {
     const existing = await User.findOne({ clerkId: params.clerkId });
     if (existing) return existing;
 
-    const payload: any = {
+    const payload: Partial<TCreateUserParams> = {
       clerkId: params.clerkId,
       email: params.email,
       name: params.name,

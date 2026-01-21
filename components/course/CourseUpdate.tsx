@@ -122,8 +122,9 @@ export default function CourseUpdate({ course }: CourseUpdateProps) {
         toast.error(res.message || "Cập nhật thất bại");
       }
       console.log("value", values);
-    } catch (error: any) {
-      toast.error(error?.message || "Cập nhật thất bại");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Cập nhật thất bại";
+      toast.error(message);
     } finally {
       setLoading(false);
     }

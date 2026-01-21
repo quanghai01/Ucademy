@@ -61,8 +61,9 @@ const CourseManage = ({ courses }: CourseManageProps) => {
             } else {
                 toast.error(result.message || "Xóa khóa học thất bại");
             }
-        } catch (error: any) {
-            toast.error(error?.message || "Đã xảy ra lỗi");
+        } catch (error) {
+            const message = error instanceof Error ? error.message : "Đã xảy ra lỗi";
+            toast.error(message);
         }
     };
 

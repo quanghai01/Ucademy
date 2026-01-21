@@ -90,7 +90,7 @@ export default function ImageUpload({
                 return;
             }
 
-            // Try to load the image to validate
+
             const img = document.createElement("img");
             img.onload = () => {
                 onChange(urlInput);
@@ -100,7 +100,7 @@ export default function ImageUpload({
                 setUrlError("URL không phải là ảnh hợp lệ hoặc không thể tải");
             };
             img.src = urlInput;
-        } catch (error) {
+        } catch {
             setUrlError("URL không hợp lệ");
         }
     };
@@ -185,7 +185,7 @@ export default function ImageUpload({
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-6 text-center">
                     <Link2 className="w-12 h-12 text-gray-400" />
                     <p className="text-sm text-gray-500">
-                        Nhập URL ảnh và nhấn "Tải ảnh"
+                        Nhập URL ảnh và nhấn &quot;Tải ảnh&quot;
                     </p>
                 </div>
             </div>

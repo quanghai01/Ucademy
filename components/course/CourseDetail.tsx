@@ -7,8 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Star, Eye, BookOpen, Clock, Signal } from "lucide-react";
 
 import { ICourse } from "@/database/course.model";
-import { useRouter } from "next/navigation";
-import { useImmer } from "use-immer";
+
 
 export default function CourseDetail({ course }: { course: ICourse }) {
   const avgRating =
