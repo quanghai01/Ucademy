@@ -1,18 +1,32 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
-  experimental: {
-    serverActions: false, // nếu liên quan
-  },
   images: {
-    domains: [
-      "source.unsplash.com",
-      "images.unsplash.com",
-      "picsum.photos",
-      "images.pexels.com",
-      "pixabay.com"
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "source.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "picsum.photos",
+      },
+      {
+        protocol: "https",
+        hostname: "images.pexels.com",
+      },
+      {
+        protocol: "https",
+        hostname: "pixabay.com",
+      },
     ],
+    formats: ["image/avif", "image/webp"], // Enable modern formats for better compression
   },
+  compress: true, // Enable gzip compression
 };
 
 export default nextConfig;

@@ -109,10 +109,17 @@ export async function getCourseBySlug({
 export async function getAllCourses() {
   try {
     await connectToDatabase();
-    const courses = await Course.find().lean();
+
+    // Only select necessary fields to reduce data transfer
+    const courses = await Course.find({ _destroy: { $ne: true } })
+      .select('title slug image price sale_price level views rating author status')
+      .lean();
+
     return JSON.parse(JSON.stringify(courses));
   } catch (error) {
     console.log(error);
     return [];
   }
 }
+
+
