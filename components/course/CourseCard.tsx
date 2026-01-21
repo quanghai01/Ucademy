@@ -11,17 +11,20 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Course } from "@/app/types";
+import { ICourse } from "@/database/course.model";
 import { Eye, Star, TrendingUp, Clock } from "lucide-react";
 import { getLevelConfig } from "@/app/lib/utils/course.utils";
 
 interface CourseCardProps {
-  course: Course;
+  course: ICourse;
 }
 
 export default function CourseCard({ course }: CourseCardProps) {
   const levelConfig = getLevelConfig(course.level || "");
-  const avgRating = course.rating || 0;
+
+  const avgRating = course.rating && course.rating.length > 0
+    ? Math.round((course.rating.reduce((acc, r) => acc + r, 0) / course.rating.length) * 10) / 10
+    : 0;
   const hasDiscount = course.sale_price && course.price && course.sale_price < course.price;
   const discountPercent = hasDiscount
     ? Math.round(((course.price! - course.sale_price!) / course.price!) * 100)
@@ -90,15 +93,20 @@ export default function CourseCard({ course }: CourseCardProps) {
       </CardHeader>
 
       <CardContent className="px-5 py-3 space-y-3">
-        {/* Author - if exists */}
-        {course.author && (
-          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
-              {course.author[0].toUpperCase()}
+
+        {(() => {
+          const authorName = typeof course.author === 'string' ? course.author : null;
+          if (!authorName) return null;
+
+          return (
+            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+                {authorName.charAt(0).toUpperCase()}
+              </div>
+              <span className="font-medium">{authorName}</span>
             </div>
-            <span className="font-medium">{course.author}</span>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Divider */}
         <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent" />

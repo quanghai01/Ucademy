@@ -13,7 +13,7 @@ export interface ICourse {
   slug: string;
   status: ECourseStatus;
   createdAt: Date;
-  author: Schema.Types.ObjectId;
+  author: Schema.Types.ObjectId | string;
   level: ECourseLevel;
   views: number;
   rating: number[];
