@@ -120,6 +120,16 @@
     max-width: 1440px;
     margin: 0 auto;
   }
+
+  /* Override Radix UI scroll lock to prevent layout shift */
+  html body[data-scroll-locked] {
+    padding-right: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+    overflow: auto !important;
+  }
+
 }
 
 @layer utilities {

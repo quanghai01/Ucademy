@@ -13,38 +13,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Course } from "@/app/types";
 import { Eye, Star, TrendingUp, Clock } from "lucide-react";
+import { getLevelConfig } from "@/app/lib/utils/course.utils";
 
 interface CourseCardProps {
   course: Course;
-}
-
-function getLevelConfig(level: string) {
-  switch (level.toLowerCase()) {
-    case "beginner":
-      return {
-        bg: "bg-gradient-to-r from-emerald-500/90 to-teal-500/90",
-        text: "text-white",
-        label: "Cơ bản"
-      };
-    case "intermediate":
-      return {
-        bg: "bg-gradient-to-r from-amber-500/90 to-orange-500/90",
-        text: "text-white",
-        label: "Trung cấp"
-      };
-    case "advanced":
-      return {
-        bg: "bg-gradient-to-r from-rose-500/90 to-pink-500/90",
-        text: "text-white",
-        label: "Nâng cao"
-      };
-    default:
-      return {
-        bg: "bg-gradient-to-r from-gray-500/90 to-slate-500/90",
-        text: "text-white",
-        label: level
-      };
-  }
 }
 
 export default function CourseCard({ course }: CourseCardProps) {

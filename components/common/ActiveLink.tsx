@@ -54,15 +54,15 @@ const ActiveLink = ({ item }: ActiveLinkProps) => {
         }
       `}
     >
-      {/* Active indicator bar */}
+
       {active && (
         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-indigo-500 to-purple-600 rounded-r-full shadow-lg shadow-indigo-500/50" />
       )}
 
-      {/* Icon */}
+
       <AnimatedIcon icon={item.icon} active={active} />
 
-      {/* Label */}
+
       <span
         className={`
           transition-all duration-300

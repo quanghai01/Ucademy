@@ -15,7 +15,9 @@ import {
 import ActiveLink from "../common/ActiveLink";
 import { useAuth, UserButton } from "@clerk/nextjs";
 
+
 import Link from "next/link";
+import { ModeToggle } from "../modeToggle/ModeToggle";
 
 const Sidebar = () => {
   const menuItems = [
@@ -31,7 +33,7 @@ const Sidebar = () => {
     },
     {
       label: "Courses",
-      href: "/manage/courses",
+      href: "/manage/course",
       icon: <LibraryBig className="w-5 h-5" />,
     },
     {
@@ -110,7 +112,7 @@ const Sidebar = () => {
           </Link>
         )}
 
-
+        <ModeToggle />
       </div>
 
 

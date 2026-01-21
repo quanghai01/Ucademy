@@ -67,6 +67,29 @@ export async function updateCourse({ slug, updateData }: TUpdateCourseParams) {
   }
 }
 
+export async function deleteCourse(slug: string) {
+  try {
+    await connectToDatabase();
+
+    const deletedCourse = await Course.findOneAndDelete({ slug }).lean();
+    if (!deletedCourse) {
+      throw new Error("COURSE_NOT_FOUND");
+    }
+
+    return {
+      success: true,
+      data: deletedCourse,
+    };
+  } catch (error) {
+    console.error("[DELETE_COURSE_ERROR]", error);
+
+    return {
+      success: false,
+      message: "Xóa khóa học thất bại",
+    };
+  }
+}
+
 export async function getCourseBySlug({
   slug,
 }: {
@@ -86,9 +109,10 @@ export async function getCourseBySlug({
 export async function getAllCourses() {
   try {
     await connectToDatabase();
-    const courses = Course.find();
-    return courses;
+    const courses = await Course.find().lean();
+    return JSON.parse(JSON.stringify(courses));
   } catch (error) {
     console.log(error);
+    return [];
   }
 }
