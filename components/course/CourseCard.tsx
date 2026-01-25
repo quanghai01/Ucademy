@@ -17,9 +17,11 @@ import { getLevelConfig } from "@/app/lib/utils/course.utils";
 
 interface CourseCardProps {
   course: ICourse;
+  cta?: string;
+  href?: string;
 }
 
-export default function CourseCard({ course }: CourseCardProps) {
+export default function CourseCard({ course, cta, href }: CourseCardProps) {
   const levelConfig = getLevelConfig(course.level || "");
 
   const avgRating = course.rating && course.rating.length > 0
@@ -142,9 +144,9 @@ export default function CourseCard({ course }: CourseCardProps) {
       </CardContent>
 
       <CardFooter className="px-5 pb-5 pt-2">
-        <Link href={`/course/${course.slug}`} className="w-full">
+        <Link href={href || `/course/${course.slug}`} className="w-full">
           <Button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold py-6 rounded-xl shadow-lg hover:shadow-xl hover:shadow-indigo-300/50 dark:hover:shadow-indigo-900/50 transition-all duration-300 group-hover:scale-[1.02]">
-            <span>Xem chi tiết</span>
+            <span>{cta || "Xem chi tiết"}</span>
             <TrendingUp className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
           </Button>
         </Link>

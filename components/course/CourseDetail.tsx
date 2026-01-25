@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Star, Eye, BookOpen, Clock, Signal } from "lucide-react";
 
 import { ICourse } from "@/database/course.model";
+import LectureCurriculum from "@/components/lecture/LectureCurriculum";
 
 
 export default function CourseDetail({ course }: { course: ICourse }) {
@@ -15,7 +16,18 @@ export default function CourseDetail({ course }: { course: ICourse }) {
       ? course.rating.reduce((a, b) => a + b, 0) / course.rating.length
       : 0;
 
+  const totalLessons = course.lectures?.reduce((total, lecture: any) => {
+    return total + (lecture.lessons?.length || 0);
+  }, 0) || 0;
 
+  const totalDuration = course.lectures?.reduce((total, lecture: any) => {
+    const lectureDuration = lecture.lessons?.reduce((sum: number, lesson: any) => {
+      return sum + (lesson.duration || 0);
+    }, 0) || 0;
+    return total + lectureDuration;
+  }, 0) || 0;
+
+  const totalHours = Math.round(totalDuration / 3600);
 
   const extractVideoId = (url: string) => {
     try {
@@ -74,10 +86,9 @@ export default function CourseDetail({ course }: { course: ICourse }) {
         </div>
       </section>
 
-      {/* CONTENT */}
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-          {/* LEFT */}
+
           <div className="lg:col-span-8 space-y-10">
             <div className="w-full max-w-6xl space-y-4 mt-10">
               <h1 className="text-4xl md:text-5xl font-bold max-w-3xl">
@@ -92,13 +103,13 @@ export default function CourseDetail({ course }: { course: ICourse }) {
                 <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted text-sm">
                   <BookOpen className="w-4 h-4 text-primary" />
                   <span>
-                    <strong>120</strong> bài học
+                    <strong>{totalLessons}</strong> bài học
                   </span>
                 </div>
 
                 <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted text-sm">
                   <Clock className="w-4 h-4 text-primary" />
-                  <span>600</span>h
+                  <span>{totalHours}</span>giờ
                 </div>
 
                 <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted text-sm">
@@ -119,7 +130,17 @@ export default function CourseDetail({ course }: { course: ICourse }) {
               </div>
             </div>
 
-            {/* WHAT YOU LEARN */}
+            <section className="space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-1 h-8 bg-gradient-to-b from-blue-500 to-cyan-500 rounded-full" />
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                  Nội dung khóa học
+                </h2>
+              </div>
+              <LectureCurriculum lectures={course.lectures as any} courseSlug={course.slug} />
+            </section>
+
+
             <section className="space-y-6">
               <div className="flex items-center gap-3">
                 <div className="w-1 h-8 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-full" />
@@ -143,7 +164,7 @@ export default function CourseDetail({ course }: { course: ICourse }) {
               </div>
             </section>
 
-            {/* REQUIREMENTS */}
+
             <section className="space-y-6">
               <div className="flex items-center gap-3">
                 <div className="w-1 h-8 bg-gradient-to-b from-amber-500 to-orange-500 rounded-full" />
@@ -164,7 +185,9 @@ export default function CourseDetail({ course }: { course: ICourse }) {
               </div>
             </section>
 
-            {/* Q&A */}
+
+
+
             <section className="space-y-6">
               <div className="flex items-center gap-3">
                 <div className="w-1 h-8 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full" />
@@ -199,7 +222,7 @@ export default function CourseDetail({ course }: { course: ICourse }) {
           <div className="lg:col-span-4">
             <Card className="sticky top-24 rounded-2xl border-none bg-white/70 backdrop-blur shadow-xl">
               <CardContent className="p-6 space-y-6">
-                {/* PRICE */}
+
                 <div>
                   <div className="flex items-end gap-3">
                     <span className="line-through text-muted-foreground text-sm">
@@ -214,7 +237,7 @@ export default function CourseDetail({ course }: { course: ICourse }) {
                   </p>
                 </div>
 
-                {/* RATING */}
+
                 <div className="flex items-center gap-2">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
@@ -230,7 +253,7 @@ export default function CourseDetail({ course }: { course: ICourse }) {
                   </span>
                 </div>
 
-                {/* CTA */}
+
                 <Button
                   size="lg"
                   className="w-full h-12 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg hover:scale-[1.02] transition"
@@ -238,7 +261,6 @@ export default function CourseDetail({ course }: { course: ICourse }) {
                   Đăng ký ngay
                 </Button>
 
-                {/* TRUST */}
                 <div className="text-sm space-y-2 text-muted-foreground">
                   <p>✔ Truy cập trọn đời</p>
                   <p>✔ Chứng chỉ hoàn thành</p>

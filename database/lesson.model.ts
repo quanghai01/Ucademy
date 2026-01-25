@@ -71,7 +71,7 @@ const lessonSchema = new Schema<LessonDocument>(
     },
   },
   {
-    timestamps: true, // createdAt & updatedAt
+    timestamps: true,
   }
 );
 

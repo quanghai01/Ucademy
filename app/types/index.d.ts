@@ -42,6 +42,33 @@ interface TCreateUserParams {
   name?: string;
   avatar?: string;
 }
+
+export interface Lesson {
+  _id: string;
+  title: string;
+  content: string;
+  slug: string;
+  lecture: string;
+  course: string;
+  order: number;
+  duration: number;
+  video_url: string;
+  type: ELessonType;
+  _destroy: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Lecture {
+  _id: string;
+  title: string;
+  lessons: Lesson[];
+  course: string;
+  order: number;
+  _destroy: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 export type DeepPartial<T> = {
   [K in keyof T]?: T[K] extends Array<infer U>
   ? Array<DeepPartial<U>>
@@ -61,4 +88,6 @@ export {
   TCreateUserParams,
   TCreateCourseParams,
   TUpdateCourseParams,
+  Lesson,
+  Lecture
 };

@@ -4,10 +4,15 @@ import { Document, model, models, Schema } from "mongoose";
 export interface IUser extends Document {
   clerkId: string;
   name?: string;
-  username?: string; // ✅ không dùng null
+  username?: string;
   email: string;
   avatar?: string;
   courses: Schema.Types.ObjectId[];
+  courseProgress: {
+    course: Schema.Types.ObjectId;
+    currentLesson: Schema.Types.ObjectId;
+    lastAccessedAt: Date;
+  }[];
   status: EUserStatus;
   role: EUserRole;
   createdAt: Date;
@@ -30,7 +35,7 @@ const userSchema = new Schema<IUser>(
     username: {
       type: String,
       unique: true,
-      sparse: true, // ⭐ quan trọng
+      sparse: true,
       trim: true,
     },
 
@@ -50,6 +55,25 @@ const userSchema = new Schema<IUser>(
       {
         type: Schema.Types.ObjectId,
         ref: "Course",
+      },
+    ],
+
+    courseProgress: [
+      {
+        course: {
+          type: Schema.Types.ObjectId,
+          ref: "Course",
+          required: true,
+        },
+        currentLesson: {
+          type: Schema.Types.ObjectId,
+          ref: "Lesson",
+          required: true,
+        },
+        lastAccessedAt: {
+          type: Date,
+          default: Date.now,
+        },
       },
     ],
 
