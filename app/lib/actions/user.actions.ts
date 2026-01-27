@@ -1,7 +1,8 @@
 "use server";
 
 import User from "@/database/user.model";
-import Course from "@/database/course.model";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import Course from "@/database/course.model"; // Required for Mongoose populate
 import { connectToDatabase } from "../mongoose";
 import { TCreateUserParams } from "@/app/types";
 import { auth } from "@clerk/nextjs/server";

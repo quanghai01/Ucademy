@@ -14,12 +14,12 @@ const ManageMemberPage = async () => {
   // Calculate statistics
   const stats = {
     total: users.length,
-    admin: users.filter((u: any) => u.role === "ADMIN").length,
-    expert: users.filter((u: any) => u.role === "EXPERT").length,
-    user: users.filter((u: any) => u.role === "USER").length,
-    active: users.filter((u: any) => u.status === "ACTIVE").length,
-    unactive: users.filter((u: any) => u.status === "UNACTIVE").length,
-    banned: users.filter((u: any) => u.status === "BANNED").length,
+    admin: users.filter((u: IUser) => u.role === "ADMIN").length,
+    expert: users.filter((u: IUser) => u.role === "EXPERT").length,
+    user: users.filter((u: IUser) => u.role === "USER").length,
+    active: users.filter((u: IUser) => u.status === "ACTIVE").length,
+    unactive: users.filter((u: IUser) => u.status === "UNACTIVE").length,
+    banned: users.filter((u: IUser) => u.status === "BANNED").length,
   };
 
 
@@ -135,12 +135,12 @@ const ManageMemberPage = async () => {
         </div>
       ) : (
         <div className="space-y-4">
-          {users.map((user: any) => {
+          {users.map((user: IUser) => {
             const createdDate = new Date(user.createdAt);
 
             return (
               <div
-                key={user._id}
+                key={user._id.toString()}
                 className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
               >
                 <div className="p-6">
@@ -224,11 +224,11 @@ const ManageMemberPage = async () => {
                     {/* Actions */}
                     <div className="flex items-center gap-3">
                       <UpdateUserStatus
-                        userId={user._id}
+                        userId={user._id.toString()}
                         currentStatus={user.status}
                       />
                       <UpdateUserRole
-                        userId={user._id}
+                        userId={user._id.toString()}
                         currentRole={user.role}
                       />
                     </div>
