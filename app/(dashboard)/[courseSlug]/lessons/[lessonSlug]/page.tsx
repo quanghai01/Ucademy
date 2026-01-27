@@ -18,7 +18,6 @@ export default async function LessonPage({ params }: PageProps) {
     const { userId } = await auth();
     if (!userId) return notFound();
     const user = await getUserInfo({ clerkId: userId });
-    console.log("🚀 ~ LessonPage ~ user:", user)
 
     if (!user) {
         return notFound();
@@ -43,21 +42,6 @@ export default async function LessonPage({ params }: PageProps) {
     }
 
     const lesson = lessonResult.data;
-
-    console.log('📚 [Lesson Page] Loading lesson:', {
-        courseSlug,
-        lessonSlug,
-        courseId: course._id.toString(),
-        lessonId: lesson._id.toString()
-    });
-
-    // 🎯 TRACK CURRENT LESSON - Simple server-side approach
-    const trackResult = await updateCurrentLesson({
-        courseId: course._id.toString(),
-        lessonId: lesson._id.toString(),
-    });
-
-    console.log('✅ [Lesson Page] Track result:', trackResult);
 
     const progressData = await getCourseProgress(courseSlug);
 

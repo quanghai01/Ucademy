@@ -25,4 +25,17 @@ enum ELessonType {
   TEXT = "TEXT",
 }
 
-export { EUserStatus, EUserRole, ECourseStatus, ECourseLevel, ELessonType };
+enum EOrderStatus {
+  PENDING = "PENDING",
+  PAID = "PAID",
+  CANCELLED = "CANCELLED",
+  REFUNDED = "REFUNDED",
+}
+
+enum EPaymentMethod {
+  VNPAY = "VNPAY",
+  MOMO = "MOMO",
+  ZALOPAY = "ZALOPAY",
+}
+
+export { EUserStatus, EUserRole, ECourseStatus, ECourseLevel, ELessonType, EOrderStatus, EPaymentMethod };

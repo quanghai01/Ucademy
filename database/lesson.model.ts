@@ -75,5 +75,9 @@ const lessonSchema = new Schema<LessonDocument>(
   }
 );
 
+lessonSchema.index({ lecture: 1, _destroy: 1, order: 1 });
+lessonSchema.index({ course: 1, _destroy: 1 });
+lessonSchema.index({ slug: 1, _destroy: 1 });
+
 const Lesson = models.Lesson || model<LessonDocument>("Lesson", lessonSchema);
 export default Lesson;

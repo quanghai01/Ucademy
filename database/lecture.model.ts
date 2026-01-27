@@ -43,6 +43,9 @@ const lectureSchema = new Schema<LectureDocument>(
   }
 );
 
+lectureSchema.index({ course: 1, _destroy: 1, order: 1 });
+lectureSchema.index({ _destroy: 1, order: 1 });
+
 const Lecture =
   models.Lecture || model<LectureDocument>("Lecture", lectureSchema);
 export default Lecture;

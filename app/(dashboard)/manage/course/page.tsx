@@ -5,6 +5,7 @@ import React from "react";
 
 const page = async () => {
   const courses = await getAllCourses();
+
   return <div><CourseManage courses={courses} /></div>;
 };
 

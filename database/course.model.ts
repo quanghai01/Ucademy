@@ -134,7 +134,10 @@ const courseSchema = new Schema<CourseDocument>(
   }
 );
 
-// Pre-save hook: generate slug if not exist
+
+courseSchema.index({ _destroy: 1, status: 1, createdAt: -1 });
+courseSchema.index({ author: 1, _destroy: 1 });
+courseSchema.index({ slug: 1, _destroy: 1 });
 
 courseSchema.pre<ICourse>("save", async function () {
   if (!this.slug && this.title) {

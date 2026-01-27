@@ -8,6 +8,7 @@ import { Star, Eye, BookOpen, Clock, Signal } from "lucide-react";
 
 import { ICourse } from "@/database/course.model";
 import LectureCurriculum from "@/components/lecture/LectureCurriculum";
+import AddToCartButton from "./AddToCartButton";
 
 
 export default function CourseDetail({ course }: { course: ICourse }) {
@@ -254,12 +255,11 @@ export default function CourseDetail({ course }: { course: ICourse }) {
                 </div>
 
 
-                <Button
-                  size="lg"
-                  className="w-full h-12 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg hover:scale-[1.02] transition"
-                >
-                  Đăng ký ngay
-                </Button>
+                <AddToCartButton
+                  courseId={course._id.toString()}
+                  courseName={course.title}
+                  className="w-full h-12 rounded-xl text-white shadow-lg hover:scale-[1.02] transition"
+                />
 
                 <div className="text-sm space-y-2 text-muted-foreground">
                   <p>✔ Truy cập trọn đời</p>

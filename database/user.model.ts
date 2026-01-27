@@ -8,6 +8,7 @@ export interface IUser extends Document {
   email: string;
   avatar?: string;
   courses: Schema.Types.ObjectId[];
+  purchasedCourses: Schema.Types.ObjectId[];
   courseProgress: {
     course: Schema.Types.ObjectId;
     currentLesson: Schema.Types.ObjectId;
@@ -52,6 +53,13 @@ const userSchema = new Schema<IUser>(
     },
 
     courses: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Course",
+      },
+    ],
+
+    purchasedCourses: [
       {
         type: Schema.Types.ObjectId,
         ref: "Course",

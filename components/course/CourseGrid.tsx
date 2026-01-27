@@ -1,8 +1,5 @@
 import React from "react";
-import CourseCard from "./CourseCard";
 
-import { getAllCourses } from "@/app/lib/actions/course.actions";
-import { ICourse } from "@/database/course.model";
 
 const CourseGrid = async ({ children }: { children: React.ReactNode }) => {
   return (

@@ -1,4 +1,4 @@
-import { getUserCourses } from "@/app/lib/actions/user.actions";
+import { getUserPurchasedCourses } from "@/app/lib/actions/user.actions";
 import { getCurrentLessonUrl } from "@/app/lib/actions/course.actions";
 import CourseCard from "@/components/course/CourseCard";
 import CourseGrid from "@/components/course/CourseGrid";
@@ -8,7 +8,7 @@ import React from "react";
 import { auth } from "@clerk/nextjs/server";
 
 const page = async () => {
-  const courses = await getUserCourses();
+  const courses = await getUserPurchasedCourses();
   const { userId } = await auth();
 
   if (!userId) {
@@ -24,13 +24,13 @@ const page = async () => {
   const coursesWithUrls = await Promise.all(
     (courses || []).map(async (course) => {
       const lessonUrl = await getCurrentLessonUrl(userId, course.slug);
-      console.log(`[Study Page] Course: ${course.slug}, LessonUrl: ${lessonUrl}`);
       return {
         course,
         lessonUrl,
       };
     })
   );
+  console.log("🚀 ~ page ~ coursesWithUrls:", coursesWithUrls)
 
   return (
     <div>

@@ -1,4 +1,4 @@
-// components/course/course-card.tsx
+
 import Image from "next/image";
 import Link from "next/link";
 
@@ -34,46 +34,49 @@ export default function CourseCard({ course, cta, href }: CourseCardProps) {
 
   return (
     <Card className="group overflow-hidden rounded-2xl border-2 border-gray-100 dark:border-gray-800 hover:border-indigo-200 dark:hover:border-indigo-800 shadow-lg hover:shadow-2xl hover:shadow-indigo-200/50 dark:hover:shadow-indigo-900/30 transition-all duration-300 hover:-translate-y-2 bg-white dark:bg-gray-900">
-      {/* Image Section */}
+
       <div className="relative h-48 w-full overflow-hidden">
         <Image
           src={course.image || "https://picsum.photos/400/300?random=1"}
           alt={course.title}
           fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          quality={85}
+          loading="lazy"
           className="object-cover transition-transform duration-500 group-hover:scale-110"
         />
 
-        {/* Gradient Overlay */}
+
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-300" />
 
-        {/* Level Badge */}
+
         {course.level && (
           <Badge className={`absolute top-3 left-3 ${levelConfig.bg} ${levelConfig.text} px-3 py-1.5 text-xs font-semibold shadow-lg border-0`}>
             {levelConfig.label}
           </Badge>
         )}
 
-        {/* Discount Badge */}
+
         {hasDiscount && (
           <Badge className="absolute top-3 right-3 bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1.5 text-xs font-bold shadow-lg border-0 animate-pulse">
             -{discountPercent}%
           </Badge>
         )}
 
-        {/* Views */}
+
         <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
           <Eye className="w-3.5 h-3.5 text-white" />
           <span className="text-xs font-medium text-white">{course.views?.toLocaleString() || 0}</span>
         </div>
       </div>
 
-      {/* Content Section */}
+
       <CardHeader className="px-5 pt-4 pb-3 space-y-3">
         <CardTitle className="line-clamp-2 text-lg font-bold text-gray-900 dark:text-white leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
           {course.title}
         </CardTitle>
 
-        {/* Rating */}
+
         {avgRating > 0 && (
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-0.5">
@@ -110,10 +113,10 @@ export default function CourseCard({ course, cta, href }: CourseCardProps) {
           );
         })()}
 
-        {/* Divider */}
+
         <div className="h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-700 to-transparent" />
 
-        {/* Price Section */}
+
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-indigo-500" />

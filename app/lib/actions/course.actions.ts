@@ -5,6 +5,7 @@ import Lecture from "@/database/lecture.model";
 import Lesson from "@/database/lesson.model";
 import { connectToDatabase } from "../mongoose";
 import { TCreateCourseParams, TUpdateCourseParams } from "@/app/types";
+import { unstable_cache } from "next/cache";
 
 
 export async function createCourse(params: TCreateCourseParams) {
@@ -92,6 +93,7 @@ export async function deleteCourse(slug: string) {
   }
 }
 
+
 export async function getCourseBySlug({
   slug,
 }: {
@@ -100,26 +102,56 @@ export async function getCourseBySlug({
   try {
     await connectToDatabase();
 
-
     if (!Lecture || !Lesson) {
       throw new Error("Models not loaded");
     }
 
-    const course = await Course.findOne({ slug })
-      .populate({
-        path: 'lectures',
-        model: 'Lecture',
-        match: { _destroy: { $ne: true } },
-        options: { sort: { order: 1 } },
-        populate: {
-          path: 'lessons',
-          model: 'Lesson',
-          match: { _destroy: { $ne: true } },
-          options: { sort: { order: 1 } }
+    // Use aggregation pipeline instead of nested populate for better performance
+    const courses = await Course.aggregate([
+      { $match: { slug, _destroy: { $ne: true } } },
+      {
+        $lookup: {
+          from: 'lectures',
+          let: { courseId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$course', '$$courseId'] },
+                    { $ne: ['$_destroy', true] }
+                  ]
+                }
+              }
+            },
+            { $sort: { order: 1 } },
+            {
+              $lookup: {
+                from: 'lessons',
+                let: { lectureId: '$_id' },
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $and: [
+                          { $eq: ['$lecture', '$$lectureId'] },
+                          { $ne: ['$_destroy', true] }
+                        ]
+                      }
+                    }
+                  },
+                  { $sort: { order: 1 } }
+                ],
+                as: 'lessons'
+              }
+            }
+          ],
+          as: 'lectures'
         }
-      })
-      .lean()
-      .exec();
+      }
+    ]);
+
+    const course = courses[0] || null;
 
     console.log("[getCourseBySlug] Found course:", course?.title);
     console.log("[getCourseBySlug] Lectures count:", course?.lectures?.length);
@@ -131,57 +163,59 @@ export async function getCourseBySlug({
   }
 }
 
-export async function getAllCourses() {
-  try {
-    await connectToDatabase();
+export const getAllCourses = unstable_cache(
+  async () => {
+    try {
+      await connectToDatabase();
 
-    // Only select necessary fields to reduce data transfer
-    const courses = await Course.find({ _destroy: { $ne: true } })
-      .select('title slug image price sale_price level views rating author status')
-      .lean();
+      const courses = await Course.find({ _destroy: { $ne: true } })
+        .select('title slug image price sale_price level views rating author status')
+        .lean();
 
-    return JSON.parse(JSON.stringify(courses));
-  } catch (error) {
-    console.log(error);
-    return [];
+      return JSON.parse(JSON.stringify(courses));
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  },
+  ['all-courses'],
+  {
+    revalidate: 60,
+    tags: ['courses']
   }
-}
+);
 
 
-/**
- * Get the URL to the first lesson of a course
- * Returns null if course has no lectures or lessons
- */
+
 export async function getFirstLessonUrl(courseSlug: string): Promise<string | null> {
   try {
     await connectToDatabase();
-
-    const course = await Course.findOne({ slug: courseSlug })
-      .populate({
-        path: 'lectures',
-        model: 'Lecture',
-        match: { _destroy: { $ne: true } },
-        options: { sort: { order: 1 }, limit: 1 },
-        populate: {
-          path: 'lessons',
-          model: 'Lesson',
-          match: { _destroy: { $ne: true } },
-          options: { sort: { order: 1 }, limit: 1 }
-        }
-      })
-      .lean()
-      .exec();
+    const course = await Course.findOne({ slug: courseSlug, _destroy: { $ne: true } })
+      .select('_id')
+      .lean();
 
     if (!course) return null;
 
-    const lectures = course.lectures as any[];
-    if (!lectures || lectures.length === 0) return null;
+    const firstLecture = await Lecture.findOne({
+      course: course._id,
+      _destroy: { $ne: true }
+    })
+      .sort({ order: 1 })
+      .select('_id')
+      .lean();
 
-    const firstLecture = lectures[0];
-    const lessons = firstLecture.lessons as any[];
-    if (!lessons || lessons.length === 0) return null;
+    if (!firstLecture) return null;
 
-    const firstLesson = lessons[0];
+    const firstLesson = await Lesson.findOne({
+      lecture: firstLecture._id,
+      _destroy: { $ne: true }
+    })
+      .sort({ order: 1 })
+      .select('slug')
+      .lean();
+
+    if (!firstLesson) return null;
+
     return `/${courseSlug}/lessons/${firstLesson.slug}`;
   } catch (error) {
     console.error("[getFirstLessonUrl]", error);
@@ -190,27 +224,19 @@ export async function getFirstLessonUrl(courseSlug: string): Promise<string | nu
 }
 
 
-/**
- * Get the URL to the current lesson a user is studying for a course
- * Falls back to first lesson if no progress exists
- */
 export async function getCurrentLessonUrl(userId: string, courseSlug: string): Promise<string | null> {
   try {
     await connectToDatabase();
-    console.log(`[getCurrentLessonUrl] START - userId: ${userId}, courseSlug: ${courseSlug}`);
 
-    // Import User model
     const User = (await import("@/database/user.model")).default;
 
-    // Get course first
     const course = await Course.findOne({ slug: courseSlug }).lean();
     if (!course) {
       console.log(`[getCurrentLessonUrl] Course not found`);
       return null;
     }
-    console.log(`[getCurrentLessonUrl] Course found: ${course._id}`);
 
-    // Get user's progress for this course
+
     const user = await User.findOne({ clerkId: userId })
       .populate({
         path: 'courseProgress.currentLesson',
@@ -223,28 +249,22 @@ export async function getCurrentLessonUrl(userId: string, courseSlug: string): P
       return getFirstLessonUrl(courseSlug);
     }
 
-    console.log(`[getCurrentLessonUrl] User courseProgress:`, user.courseProgress);
 
-    // Find the course progress entry
     const courseProgressEntry = (user.courseProgress || []).find(
       (progress: any) => progress.course.toString() === course._id.toString()
     );
 
-    console.log(`[getCurrentLessonUrl] Found progress entry:`, courseProgressEntry);
+
 
     if (courseProgressEntry && courseProgressEntry.currentLesson) {
       const currentLesson = courseProgressEntry.currentLesson as any;
       const url = `/${courseSlug}/lessons/${currentLesson.slug}`;
-      console.log(`[getCurrentLessonUrl] Returning current lesson URL: ${url}`);
       return url;
     }
 
-    // No progress found, return first lesson
-    console.log(`[getCurrentLessonUrl] No progress, fallback to first lesson`);
     return getFirstLessonUrl(courseSlug);
   } catch (error) {
     console.error("[getCurrentLessonUrl]", error);
-    // Fallback to first lesson on error
     return getFirstLessonUrl(courseSlug);
   }
 }

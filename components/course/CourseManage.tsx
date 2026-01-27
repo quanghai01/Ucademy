@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -33,6 +33,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Course } from "@/app/types";
 import { getLevelConfig } from "@/app/lib/utils/course.utils";
 import { deleteCourse } from "@/app/lib/actions/course.actions";
+import { usePagination } from "@/app/lib/hooks/usePagination";
+import { Pagination } from "@/components/common/Pagination";
 
 
 
@@ -47,6 +49,7 @@ const CourseManage = ({ courses }: CourseManageProps) => {
     const router = useRouter();
 
     const courseList = courses || [];
+
 
     const handleDeleteCourse = async (slug: string) => {
         if (!confirm("Bạn có chắc chắn muốn xóa khóa học này không?")) {
@@ -68,14 +71,29 @@ const CourseManage = ({ courses }: CourseManageProps) => {
     };
 
 
-    const filteredCourses = courseList.filter((course) => {
-        const matchesSearch = course.title
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase());
-        const matchesLevel =
-            levelFilter === "all" ||
-            course.level?.toLowerCase() === levelFilter.toLowerCase();
-        return matchesSearch && matchesLevel;
+    const filteredCourses = useMemo(() => {
+        return courseList.filter((course) => {
+            const matchesSearch = course.title
+                .toLowerCase()
+                .includes(searchQuery.toLowerCase());
+            const matchesLevel =
+                levelFilter === "all" ||
+                course.level?.toLowerCase() === levelFilter.toLowerCase();
+            return matchesSearch && matchesLevel;
+        });
+    }, [courseList, searchQuery, levelFilter]);
+
+
+    const {
+        currentPage,
+        totalPages,
+        paginatedItems: paginatedCourses,
+        startIndex,
+        endIndex,
+        goToPage,
+    } = usePagination({
+        items: filteredCourses,
+        itemsPerPage: 2,
     });
 
 
@@ -236,7 +254,7 @@ const CourseManage = ({ courses }: CourseManageProps) => {
                         </CardContent>
                     </Card>
                 ) : (
-                    filteredCourses.map((course) => {
+                    paginatedCourses.map((course) => {
                         const levelConfig = getLevelConfig(course.level);
                         const hasDiscount =
                             course.sale_price && course.price && course.sale_price < course.price;
@@ -366,6 +384,17 @@ const CourseManage = ({ courses }: CourseManageProps) => {
                     })
                 )}
             </div>
+
+            {/* Pagination */}
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={filteredCourses.length}
+                startIndex={startIndex}
+                endIndex={endIndex}
+                onPageChange={goToPage}
+                itemLabel="khóa học"
+            />
         </div>
     );
 };

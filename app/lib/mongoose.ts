@@ -18,6 +18,11 @@ export const connectToDatabase = async () => {
   try {
     await mongoose.connect(MONGODB_URL, {
       dbName: "ucademy",
+      maxPoolSize: 10,
+      minPoolSize: 2,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      bufferCommands: false,
     });
 
     console.log("MongoDB connected");

@@ -13,7 +13,7 @@ const AdminLayout = async ({ children }: { children: React.ReactNode }) => {
   }
 
   const user = await getUserInfo({ clerkId: session.userId });
-  if (user && user.role !== EUserRole.ADMIN) return <PageNotFound />;
+  // if (user && user.role !== EUserRole.ADMIN) return <PageNotFound />;
 
   if (!user) {
     redirect("/sign-in");
