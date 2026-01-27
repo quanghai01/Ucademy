@@ -5,11 +5,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, Eye, BookOpen, Clock, Signal } from "lucide-react";
-
 import { ICourse } from "@/database/course.model";
 import LectureCurriculum from "@/components/lecture/LectureCurriculum";
 import AddToCartButton from "./AddToCartButton";
-
+import { getLevelConfig, formatDuration } from "@/app/lib/utils/course.utils";
 
 export default function CourseDetail({ course }: { course: ICourse }) {
   const avgRating =
@@ -21,14 +20,14 @@ export default function CourseDetail({ course }: { course: ICourse }) {
     return total + (lecture.lessons?.length || 0);
   }, 0) || 0;
 
-  const totalDuration = course.lectures?.reduce((total, lecture: any) => {
+  const durationSeconds = course.totalDuration || course.lectures?.reduce((total, lecture: any) => {
     const lectureDuration = lecture.lessons?.reduce((sum: number, lesson: any) => {
       return sum + (lesson.duration || 0);
     }, 0) || 0;
     return total + lectureDuration;
   }, 0) || 0;
 
-  const totalHours = Math.round(totalDuration / 3600);
+  const durationDisplay = formatDuration(durationSeconds);
 
   const extractVideoId = (url: string) => {
     try {
@@ -110,7 +109,7 @@ export default function CourseDetail({ course }: { course: ICourse }) {
 
                 <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted text-sm">
                   <Clock className="w-4 h-4 text-primary" />
-                  <span>{totalHours}</span>giờ
+                  <span>{durationDisplay}</span>
                 </div>
 
                 <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted text-sm">

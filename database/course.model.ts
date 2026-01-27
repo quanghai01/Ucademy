@@ -23,6 +23,8 @@ export interface ICourse {
     qa: { question: string; answer: string }[];
   };
   lectures: Schema.Types.ObjectId[];
+  totalDuration?: number;
+  ratedBy: Types.ObjectId[];
   _destroy: boolean;
 }
 export type CourseDocument = HydratedDocument<ICourse>;
@@ -100,6 +102,11 @@ const courseSchema = new Schema<CourseDocument>(
       type: [Number],
       default: [],
     },
+    ratedBy: {
+      type: [Schema.Types.ObjectId],
+      ref: "User",
+      default: [],
+    },
 
     info: {
       requirements: {
@@ -157,10 +164,16 @@ courseSchema.virtual("avgRating").get(function (this: ICourse) {
 
 courseSchema.methods.addRating = async function (
   this: CourseDocument,
-  value: number
+  value: number,
+  userId: string
 ) {
-  if (value < 0 || value > 5) throw new Error("Rating must be 0-5");
+  if (value < 1 || value > 5) throw new Error("Rating must be 1-5");
+  const userObjectId = new Types.ObjectId(userId);
+  if (this.ratedBy.some((id: any) => id.toString() === userId)) {
+    throw new Error("User already rated this course");
+  }
   this.rating.push(value);
+  this.ratedBy.push(userObjectId as any);
   return this.save();
 };
 

@@ -71,9 +71,7 @@ export async function getUserPurchasedCourses(): Promise<ICourse[] | null> {
   }
 }
 
-/**
- * Get all users (Admin)
- */
+
 export async function getAllUsers() {
   try {
     await connectToDatabase();
@@ -91,9 +89,7 @@ export async function getAllUsers() {
   }
 }
 
-/**
- * Update user status (Admin)
- */
+
 export async function updateUserStatus(userId: string, status: string) {
   try {
     await connectToDatabase();
@@ -117,9 +113,7 @@ export async function updateUserStatus(userId: string, status: string) {
   }
 }
 
-/**
- * Update user role (Admin)
- */
+
 export async function updateUserRole(userId: string, role: string) {
   try {
     await connectToDatabase();

@@ -1,11 +1,13 @@
 "use server";
 
 import Course, { ICourse } from "@/database/course.model";
+import User from "@/database/user.model";
 import Lecture from "@/database/lecture.model";
 import Lesson from "@/database/lesson.model";
 import { connectToDatabase } from "../mongoose";
 import { TCreateCourseParams, TUpdateCourseParams } from "@/app/types";
-import { unstable_cache } from "next/cache";
+import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
+import { auth } from "@clerk/nextjs/server";
 
 
 export async function createCourse(params: TCreateCourseParams) {
@@ -106,7 +108,6 @@ export async function getCourseBySlug({
       throw new Error("Models not loaded");
     }
 
-    // Use aggregation pipeline instead of nested populate for better performance
     const courses = await Course.aggregate([
       { $match: { slug, _destroy: { $ne: true } } },
       {
@@ -144,9 +145,19 @@ export async function getCourseBySlug({
                 ],
                 as: 'lessons'
               }
+            },
+            {
+              $addFields: {
+                lectureDuration: { $sum: '$lessons.duration' }
+              }
             }
           ],
           as: 'lectures'
+        }
+      },
+      {
+        $addFields: {
+          totalDuration: { $sum: '$lectures.lectureDuration' }
         }
       }
     ]);
@@ -163,27 +174,20 @@ export async function getCourseBySlug({
   }
 }
 
-export const getAllCourses = unstable_cache(
-  async () => {
-    try {
-      await connectToDatabase();
+export async function getAllCourses() {
+  try {
+    await connectToDatabase();
 
-      const courses = await Course.find({ _destroy: { $ne: true } })
-        .select('title slug image price sale_price level views rating author status')
-        .lean();
+    const courses = await Course.find({ _destroy: { $ne: true } })
+      .select('title slug image price sale_price level views rating author status')
+      .lean();
 
-      return JSON.parse(JSON.stringify(courses));
-    } catch (error) {
-      console.log(error);
-      return [];
-    }
-  },
-  ['all-courses'],
-  {
-    revalidate: 60,
-    tags: ['courses']
+    return JSON.parse(JSON.stringify(courses));
+  } catch (error) {
+    console.log(error);
+    return [];
   }
-);
+}
 
 
 
@@ -266,5 +270,83 @@ export async function getCurrentLessonUrl(userId: string, courseSlug: string): P
   } catch (error) {
     console.error("[getCurrentLessonUrl]", error);
     return getFirstLessonUrl(courseSlug);
+  }
+}
+
+
+export async function incrementCourseViews(slug: string) {
+  try {
+    await connectToDatabase();
+
+    const course = await Course.findOneAndUpdate(
+      { slug, _destroy: { $ne: true } },
+      { $inc: { views: 1 } },
+      { new: true }
+    ).lean();
+
+    if (!course) {
+      return { success: false, message: "Course not found" };
+    }
+
+
+    revalidateTag('courses');
+    revalidatePath('/');
+    revalidatePath('/study');
+
+    return { success: true, views: course.views };
+  } catch (error) {
+    console.error("❌ incrementCourseViews failed:", error);
+    return { success: false, message: "Failed to increment views" };
+  }
+}
+
+/**
+ * Rate a course
+ */
+export async function rateCourse(courseId: string, rating: number) {
+  try {
+    await connectToDatabase();
+    const { userId: clerkId } = await auth();
+
+    if (!clerkId) {
+      return { success: false, message: "Unauthorized" };
+    }
+
+    const user = await User.findOne({ clerkId });
+    if (!user) {
+      return { success: false, message: "User not found" };
+    }
+
+    // Check if user purchased the course
+    const isPurchased = user.purchasedCourses.some(
+      (id: any) => id.toString() === courseId
+    );
+
+    if (!isPurchased) {
+      return { success: false, message: "You must purchase the course to rate it" };
+    }
+
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return { success: false, message: "Course not found" };
+    }
+
+    // Check if already rated
+    const hasRated = course?.ratedBy?.some((id: any) => id.toString() === user._id.toString());
+    if (hasRated) {
+      return { success: false, message: "You have already rated this course" };
+    }
+
+    await course.addRating(rating, user._id.toString());
+
+    revalidateTag("courses");
+    revalidatePath("/");
+    revalidatePath("/study");
+    revalidatePath(`/course/${course.slug}`);
+
+    return { success: true, message: "Thank you for your rating!" };
+  } catch (error: any) {
+    console.error("❌ rateCourse failed:", error);
+    return { success: false, message: error.message || "Failed to rate course" };
   }
 }

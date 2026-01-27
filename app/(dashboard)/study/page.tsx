@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getUserPurchasedCourses } from "@/app/lib/actions/user.actions";
 import { getCurrentLessonUrl } from "@/app/lib/actions/course.actions";
 import CourseCard from "@/components/course/CourseCard";
@@ -30,7 +32,7 @@ const page = async () => {
       };
     })
   );
-  console.log("🚀 ~ page ~ coursesWithUrls:", coursesWithUrls)
+
 
   return (
     <div>

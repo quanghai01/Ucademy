@@ -1,4 +1,6 @@
-import { getCourseBySlug } from "@/app/lib/actions/course.actions";
+export const dynamic = "force-dynamic";
+
+import { getCourseBySlug, incrementCourseViews } from "@/app/lib/actions/course.actions";
 import CourseDetail from "@/components/course/CourseDetail";
 import Heading from "@/components/typography/Heading";
 
@@ -13,6 +15,8 @@ export default async function CoursePage({ params }: PageProps) {
 
   const findCourse = await getCourseBySlug({ slug });
   if (!findCourse) return null;
+
+  await incrementCourseViews(slug);
 
   const course = JSON.parse(JSON.stringify(findCourse));
 

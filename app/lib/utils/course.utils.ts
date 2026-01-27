@@ -34,3 +34,15 @@ export function getLevelConfig(level: string): LevelConfig {
             };
     }
 }
+export function formatDuration(seconds: number): string {
+    if (!seconds || seconds <= 0) return "0 phút";
+
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+
+    if (hours > 0) {
+        return `${hours} giờ ${minutes > 0 ? `${minutes} phút` : ""}`.trim();
+    }
+
+    return `${minutes} phút`;
+}

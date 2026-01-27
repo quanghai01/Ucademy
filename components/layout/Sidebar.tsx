@@ -10,6 +10,7 @@ import {
   LibraryBig,
   LogIn,
   Sparkles,
+  Star
 } from "lucide-react";
 
 import ActiveLink from "../common/ActiveLink";
@@ -22,34 +23,39 @@ import { ModeToggle } from "../modeToggle/ModeToggle";
 const Sidebar = () => {
   const menuItems = [
     {
-      label: "Home",
+      label: "Trang chủ",
       href: "/",
       icon: <Home className="w-5 h-5" />,
     },
     {
-      label: "Study",
+      label: "Vào học",
       href: "/study",
       icon: <GraduationCap className="w-5 h-5" />,
     },
     {
-      label: "Courses",
+      label: "Khóa học",
       href: "/manage/course",
       icon: <LibraryBig className="w-5 h-5" />,
     },
     {
-      label: "Member",
+      label: "Thành viên",
       href: "/manage/member",
       icon: <Users className="w-5 h-5" />,
     },
     {
-      label: "Order",
+      label: "Đơn hàng",
       href: "/manage/order",
       icon: <Receipt className="w-5 h-5" />,
     },
     {
-      label: "Comment",
+      label: "Bình luận",
       href: "/manage/comment",
       icon: <MessageCircle className="w-5 h-5" />,
+    },
+    {
+      label: "Đánh giá",
+      href: "/manage/rating",
+      icon: <Star className="w-5 h-5" />,
     },
   ];
 
@@ -81,7 +87,7 @@ const Sidebar = () => {
           </span>
         </div>
         <p className="text-xs text-muted-foreground mt-1 ml-12 opacity-0 group-hover:opacity-100 transition-opacity">
-          Learn & Grow
+          Học để phát triển
         </p>
       </div>
 
@@ -100,7 +106,7 @@ const Sidebar = () => {
         {isLoaded && userId ? (
           <div className="flex items-center gap-3">
             <UserButton />
-            <span className="text-sm font-medium hidden xl:inline">Profile</span>
+            <span className="text-sm font-medium hidden xl:inline">Tài khoản</span>
           </div>
         ) : (
           <Link
@@ -108,7 +114,7 @@ const Sidebar = () => {
             className="flex items-center gap-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
           >
             <LogIn className="w-4 h-4" />
-            <span className="hidden xl:inline">Sign In</span>
+            <span className="hidden xl:inline">Đăng nhập</span>
           </Link>
         )}
 
@@ -121,7 +127,7 @@ const Sidebar = () => {
           © 2026 <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent font-semibold">Ucademy</span>
         </p>
         <p className="text-[10px] text-muted-foreground/60 mt-0.5">
-          Made with ❤️ for learners
+          Tạo ra bằng ❤️ cho người học
         </p>
       </div>
     </aside>

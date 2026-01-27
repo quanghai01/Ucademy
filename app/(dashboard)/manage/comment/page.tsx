@@ -1,7 +1,16 @@
+import CommentManage from "@/components/comment/CommentManage";
+import { getAllComments } from "@/app/lib/actions/comment.actions";
 import React from "react";
 
-const page = () => {
-  return <div>Comment</div>;
+const Page = async () => {
+  const res = await getAllComments();
+  const comments = res.success ? res.data : [];
+
+  return (
+    <div>
+      <CommentManage comments={comments} />
+    </div>
+  );
 };
 
-export default page;
+export default Page;

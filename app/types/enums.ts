@@ -38,4 +38,10 @@ enum EPaymentMethod {
   ZALOPAY = "ZALOPAY",
 }
 
-export { EUserStatus, EUserRole, ECourseStatus, ECourseLevel, ELessonType, EOrderStatus, EPaymentMethod };
+enum ECommentStatus {
+  APPROVED = "APPROVED",
+  PENDING = "PENDING",
+  REJECTED = "REJECTED",
+}
+
+export { EUserStatus, EUserRole, ECourseStatus, ECourseLevel, ELessonType, EOrderStatus, EPaymentMethod, ECommentStatus };

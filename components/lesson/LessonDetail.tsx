@@ -8,19 +8,41 @@ import { ELessonType } from "@/app/types/enums";
 import LessonNavigation from "./LessonNavigation";
 import CourseOutlineSidebar from "./CourseOutlineSidebar";
 import MarkCompleteButton from "./MarkCompleteButton";
+import CourseRating from "../course/CourseRating";
+
+import CommentSection from "../comment/CommentSection";
 
 interface LessonDetailProps {
     lesson: any;
     course: any;
     courseSlug: string;
     courseId: string;
+    userId: string;
+    clerkId: string;
+    isAdmin: boolean;
+    comments: any[];
+    userRating?: number;
     completedLessons?: string[];
     progress?: number;
     totalLessons?: number;
     completedCount?: number;
 }
 
-export default function LessonDetail({ lesson, course, courseSlug, courseId, completedLessons, progress, totalLessons, completedCount }: LessonDetailProps) {
+export default function LessonDetail({
+    lesson,
+    course,
+    courseSlug,
+    courseId,
+    userId,
+    clerkId,
+    isAdmin,
+    comments,
+    userRating,
+    completedLessons,
+    progress,
+    totalLessons,
+    completedCount
+}: LessonDetailProps) {
     const isVideo = lesson.type === ELessonType.VIDEO;
 
     const extractVideoId = (url: string) => {
@@ -133,6 +155,18 @@ export default function LessonDetail({ lesson, course, courseSlug, courseId, com
                             currentLessonSlug={lesson.slug}
                             course={course}
                             courseSlug={courseSlug}
+                        />
+
+                        <div className="mt-10">
+                            <CourseRating courseId={courseId} userRating={userRating} />
+                        </div>
+
+                        <CommentSection
+                            lessonId={lesson._id}
+                            userId={userId}
+                            clerkId={clerkId}
+                            isAdmin={isAdmin}
+                            comments={comments}
                         />
                     </div>
 
