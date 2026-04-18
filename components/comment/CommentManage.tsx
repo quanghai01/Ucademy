@@ -31,6 +31,8 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { ECommentStatus } from "@/app/types/enums";
 import { updateCommentStatus, deleteComment } from "@/app/lib/actions/comment.actions";
+import { usePagination } from "@/app/lib/hooks/usePagination";
+import { Pagination } from "@/components/common/Pagination";
 
 interface CommentManageProps {
     comments: any[];
@@ -54,6 +56,18 @@ const CommentManage = ({ comments }: CommentManageProps) => {
             return matchesSearch && matchesStatus;
         });
     }, [comments, searchQuery, statusFilter]);
+
+    const {
+        currentPage,
+        totalPages,
+        paginatedItems,
+        startIndex,
+        endIndex,
+        goToPage,
+    } = usePagination({
+        items: filteredComments,
+        itemsPerPage: 10,
+    });
 
     const handleStatusUpdate = async (commentId: string, status: ECommentStatus) => {
         setIsProcessing(commentId);
@@ -159,7 +173,7 @@ const CommentManage = ({ comments }: CommentManageProps) => {
             </Card>
 
             <div className="space-y-4">
-                {filteredComments.length === 0 ? (
+                {paginatedItems.length === 0 ? (
                     <Card className="border-2 border-dashed border-gray-300 dark:border-gray-700">
                         <CardContent className="p-12 text-center">
                             <MessageSquare className="w-16 h-16 mx-auto text-gray-400 dark:text-gray-600 mb-4" />
@@ -169,95 +183,109 @@ const CommentManage = ({ comments }: CommentManageProps) => {
                         </CardContent>
                     </Card>
                 ) : (
-                    filteredComments.map((comment) => (
-                        <Card key={comment._id} className="group border-2 border-gray-100 dark:border-gray-800 hover:border-indigo-200 transition-all duration-300">
-                            <CardContent className="p-6">
-                                <div className="flex flex-col gap-4">
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex gap-3">
-                                            <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0 border border-gray-200">
-                                                <NextImage
-                                                    src={comment.user?.avatar || "/default-avatar.png"}
-                                                    alt={comment.user?.name || "User"}
-                                                    fill
-                                                    className="object-cover"
-                                                />
-                                            </div>
-                                            <div>
+                    <>
+                        <div className="space-y-4">
+                            {paginatedItems.map((comment) => (
+                                <Card key={comment._id} className="group border-2 border-gray-100 dark:border-gray-800 hover:border-indigo-200 transition-all duration-300">
+                                    <CardContent className="p-6">
+                                        <div className="flex flex-col gap-4">
+                                            <div className="flex items-start justify-between">
+                                                <div className="flex gap-3">
+                                                    <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0 border border-gray-200">
+                                                        <NextImage
+                                                            src={comment.user?.avatar || "/default-avatar.png"}
+                                                            alt={comment.user?.name || "User"}
+                                                            fill
+                                                            className="object-cover"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="font-bold text-gray-900 dark:text-white">{comment.user?.name}</span>
+                                                            {getStatusBadge(comment.status)}
+                                                        </div>
+                                                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                                                            <Clock className="w-3 h-3" />
+                                                            <span>
+                                                                {formatDistanceToNow(new Date(comment.createdAt), {
+                                                                    addSuffix: true,
+                                                                    locale: vi
+                                                                })}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <div className="flex items-center gap-2">
-                                                    <span className="font-bold text-gray-900 dark:text-white">{comment.user?.name}</span>
-                                                    {getStatusBadge(comment.status)}
+                                                    {comment.status !== ECommentStatus.APPROVED && (
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            className="border-emerald-200 text-emerald-600 hover:bg-emerald-50"
+                                                            onClick={() => handleStatusUpdate(comment._id, ECommentStatus.APPROVED)}
+                                                            disabled={isProcessing === comment._id}
+                                                        >
+                                                            <CheckCircle className="w-4 h-4 mr-2" />
+                                                            Duyệt
+                                                        </Button>
+                                                    )}
+                                                    {comment.status !== ECommentStatus.REJECTED && (
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            className="border-red-200 text-red-600 hover:bg-red-50"
+                                                            onClick={() => handleStatusUpdate(comment._id, ECommentStatus.REJECTED)}
+                                                            disabled={isProcessing === comment._id}
+                                                        >
+                                                            <XCircle className="w-4 h-4 mr-2" />
+                                                            Từ chối
+                                                        </Button>
+                                                    )}
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        className="border-gray-200 text-gray-600 hover:bg-gray-50"
+                                                        onClick={() => handleDelete(comment._id)}
+                                                        disabled={isProcessing === comment._id}
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </Button>
                                                 </div>
-                                                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                                                    <Clock className="w-3 h-3" />
-                                                    <span>
-                                                        {formatDistanceToNow(new Date(comment.createdAt), {
-                                                            addSuffix: true,
-                                                            locale: vi
-                                                        })}
-                                                    </span>
+                                            </div>
+
+                                            <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg">
+                                                <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                                                    {comment.content}
+                                                </p>
+                                            </div>
+
+                                            <div className="flex flex-wrap items-center gap-6 text-xs text-muted-foreground px-1">
+                                                <div className="flex items-center gap-1.5">
+                                                    <BookOpen className="w-3.5 h-3.5" />
+                                                    <span className="font-medium text-gray-600 dark:text-gray-400">Khóa học:</span>
+                                                    <span className="text-indigo-600 font-semibold">{comment.lesson?.course?.title}</span>
+                                                </div>
+                                                <div className="flex items-center gap-1.5">
+                                                    <MessageSquare className="w-3.5 h-3.5" />
+                                                    <span className="font-medium text-gray-600 dark:text-gray-400">Bài học:</span>
+                                                    <span>{comment.lesson?.title}</span>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            {comment.status !== ECommentStatus.APPROVED && (
-                                                <Button
-                                                    size="sm"
-                                                    variant="outline"
-                                                    className="border-emerald-200 text-emerald-600 hover:bg-emerald-50"
-                                                    onClick={() => handleStatusUpdate(comment._id, ECommentStatus.APPROVED)}
-                                                    disabled={isProcessing === comment._id}
-                                                >
-                                                    <CheckCircle className="w-4 h-4 mr-2" />
-                                                    Duyệt
-                                                </Button>
-                                            )}
-                                            {comment.status !== ECommentStatus.REJECTED && (
-                                                <Button
-                                                    size="sm"
-                                                    variant="outline"
-                                                    className="border-red-200 text-red-600 hover:bg-red-50"
-                                                    onClick={() => handleStatusUpdate(comment._id, ECommentStatus.REJECTED)}
-                                                    disabled={isProcessing === comment._id}
-                                                >
-                                                    <XCircle className="w-4 h-4 mr-2" />
-                                                    Từ chối
-                                                </Button>
-                                            )}
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                className="border-gray-200 text-gray-600 hover:bg-gray-50"
-                                                onClick={() => handleDelete(comment._id)}
-                                                disabled={isProcessing === comment._id}
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </Button>
-                                        </div>
-                                    </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
 
-                                    <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg">
-                                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                                            {comment.content}
-                                        </p>
-                                    </div>
-
-                                    <div className="flex flex-wrap items-center gap-6 text-xs text-muted-foreground px-1">
-                                        <div className="flex items-center gap-1.5">
-                                            <BookOpen className="w-3.5 h-3.5" />
-                                            <span className="font-medium text-gray-600 dark:text-gray-400">Khóa học:</span>
-                                            <span className="text-indigo-600 font-semibold">{comment.lesson?.course?.title}</span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5">
-                                            <MessageSquare className="w-3.5 h-3.5" />
-                                            <span className="font-medium text-gray-600 dark:text-gray-400">Bài học:</span>
-                                            <span>{comment.lesson?.title}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            totalItems={filteredComments.length}
+                            startIndex={startIndex}
+                            endIndex={endIndex}
+                            onPageChange={goToPage}
+                            itemLabel="bình luận"
+                        />
+                    </>
                 )}
             </div>
         </div>

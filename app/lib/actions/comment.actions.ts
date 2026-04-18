@@ -4,6 +4,7 @@ import Comment from "@/database/comment.model";
 import { connectToDatabase } from "../mongoose";
 import { revalidatePath } from "next/cache";
 import { ECommentStatus } from "@/app/types/enums";
+import { isAdmin } from "../auth";
 
 export async function createComment(params: {
     content: string;
@@ -62,6 +63,9 @@ export async function deleteComment(params: {
     path: string;
 }) {
     try {
+        if (!await isAdmin()) {
+            return { success: false, message: "Unauthorized" };
+        }
         await connectToDatabase();
 
         const deletedComment = await Comment.findByIdAndDelete(params.commentId);
@@ -85,6 +89,9 @@ export async function updateCommentStatus(params: {
     path: string;
 }) {
     try {
+        if (!await isAdmin()) {
+            return { success: false, message: "Unauthorized" };
+        }
         await connectToDatabase();
 
         const updatedComment = await Comment.findByIdAndUpdate(
@@ -107,6 +114,9 @@ export async function updateCommentStatus(params: {
 }
 export async function getAllComments() {
     try {
+        if (!await isAdmin()) {
+            return { success: false, message: "Unauthorized" };
+        }
         await connectToDatabase();
 
         const comments = await Comment.find()

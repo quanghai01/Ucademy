@@ -8,10 +8,14 @@ import { connectToDatabase } from "../mongoose";
 import { TCreateCourseParams, TUpdateCourseParams } from "@/app/types";
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 import { auth } from "@clerk/nextjs/server";
+import { isExpert } from "../auth";
 
 
 export async function createCourse(params: TCreateCourseParams) {
   try {
+    if (!await isExpert()) {
+      throw new Error("UNAUTHORIZED");
+    }
     await connectToDatabase();
 
     const existing = await Course.findOne({ slug: params.slug }).lean();
@@ -39,6 +43,9 @@ export async function createCourse(params: TCreateCourseParams) {
 
 export async function updateCourse({ slug, updateData }: TUpdateCourseParams) {
   try {
+    if (!await isExpert()) {
+      throw new Error("UNAUTHORIZED");
+    }
     await connectToDatabase();
 
     const updatedCourse = await Course.findOneAndUpdate(
@@ -74,6 +81,9 @@ export async function updateCourse({ slug, updateData }: TUpdateCourseParams) {
 
 export async function deleteCourse(slug: string) {
   try {
+    if (!await isExpert()) {
+      throw new Error("UNAUTHORIZED");
+    }
     await connectToDatabase();
 
     const deletedCourse = await Course.findOneAndDelete({ slug }).lean();

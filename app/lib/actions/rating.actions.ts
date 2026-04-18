@@ -3,9 +3,13 @@
 import Course from "@/database/course.model";
 import { connectToDatabase } from "../mongoose";
 import { revalidatePath } from "next/cache";
+import { isAdmin } from "../auth";
 
 export async function getAllRatings() {
     try {
+        if (!await isAdmin()) {
+            return { success: false, message: "Unauthorized" };
+        }
         await connectToDatabase();
 
         // Aggregate to flatten the rating and ratedBy arrays
@@ -48,6 +52,9 @@ export async function deleteRating(params: {
     path: string;
 }) {
     try {
+        if (!await isAdmin()) {
+            return { success: false, message: "Unauthorized" };
+        }
         await connectToDatabase();
 
         const course = await Course.findById(params.courseId);

@@ -5,6 +5,7 @@ import Lesson from "@/database/lesson.model";
 import Course from "@/database/course.model";
 import { connectToDatabase } from "../mongoose";
 import { revalidatePath } from "next/cache";
+import { isExpert } from "../auth";
 
 
 export async function getLecturesByCourse(courseSlug: string) {
@@ -57,6 +58,9 @@ export async function createLecture(params: {
     order?: number;
 }) {
     try {
+        if (!await isExpert()) {
+            return { success: false, message: "Unauthorized" };
+        }
         await connectToDatabase();
 
         const course = await Course.findOne({ slug: params.courseSlug }).lean();
@@ -99,6 +103,9 @@ export async function updateLecture(params: {
     order?: number;
 }) {
     try {
+        if (!await isExpert()) {
+            return { success: false, message: "Unauthorized" };
+        }
         await connectToDatabase();
 
         const updateData: any = {};
@@ -130,6 +137,9 @@ export async function updateLecture(params: {
 
 export async function deleteLecture(lectureId: string) {
     try {
+        if (!await isExpert()) {
+            return { success: false, message: "Unauthorized" };
+        }
         await connectToDatabase();
 
         const lecture = await Lecture.findByIdAndUpdate(
@@ -163,6 +173,9 @@ export async function reorderLectures(params: {
     lectureIds: string[];
 }) {
     try {
+        if (!await isExpert()) {
+            return { success: false, message: "Unauthorized" };
+        }
         await connectToDatabase();
 
 

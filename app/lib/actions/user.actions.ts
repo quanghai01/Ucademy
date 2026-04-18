@@ -5,8 +5,10 @@ import User from "@/database/user.model";
 import Course from "@/database/course.model"; // Required for Mongoose populate
 import { connectToDatabase } from "../mongoose";
 import { TCreateUserParams } from "@/app/types";
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { ICourse } from "@/database/course.model";
+import { EUserRole } from "@/app/types/enums";
+import { isAdmin } from "../auth";
 
 
 export async function createUser(params: TCreateUserParams) {
@@ -28,6 +30,15 @@ export async function createUser(params: TCreateUserParams) {
     }
 
     const newUser = await User.create(payload);
+
+    // Sync role to Clerk publicMetadata
+    const client = await clerkClient();
+    await client.users.updateUserMetadata(params.clerkId, {
+      publicMetadata: {
+        role: EUserRole.USER,
+      },
+    });
+
     return newUser;
   } catch (error) {
     console.error("❌ Create user failed:", error);
@@ -40,6 +51,22 @@ export async function getUserInfo({ clerkId }: { clerkId: string }) {
     await connectToDatabase();
 
     const user = await User.findOne({ clerkId }).lean();
+    if (!user) return null;
+
+    // Lazy sync role to Clerk publicMetadata if missing
+    const session = await auth();
+    const clerkRole = session.sessionClaims?.metadata?.role;
+
+    if (clerkRole !== user.role) {
+      console.log(`[LAZY-SYNC] Syncing role for user ${clerkId}: ${user.role}`);
+      const client = await clerkClient();
+      await client.users.updateUserMetadata(clerkId, {
+        publicMetadata: {
+          role: user.role,
+        },
+      });
+    }
+
     return user;
   } catch (error) {
     console.error("❌ getUserInfo failed:", error);
@@ -92,6 +119,9 @@ export async function getAllUsers() {
 
 export async function updateUserStatus(userId: string, status: string) {
   try {
+    if (!await isAdmin()) {
+      return { success: false, message: "Unauthorized" };
+    }
     await connectToDatabase();
 
     const user = await User.findById(userId);
@@ -116,6 +146,9 @@ export async function updateUserStatus(userId: string, status: string) {
 
 export async function updateUserRole(userId: string, role: string) {
   try {
+    if (!await isAdmin()) {
+      return { success: false, message: "Unauthorized" };
+    }
     await connectToDatabase();
 
     const user = await User.findById(userId);
@@ -125,6 +158,14 @@ export async function updateUserRole(userId: string, role: string) {
 
     user.role = role;
     await user.save();
+
+    // Sync role to Clerk publicMetadata
+    const client = await clerkClient();
+    await client.users.updateUserMetadata(user.clerkId, {
+      publicMetadata: {
+        role,
+      },
+    });
 
     return {
       success: true,

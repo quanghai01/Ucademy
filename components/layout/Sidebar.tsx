@@ -20,7 +20,7 @@ import { useAuth, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { ModeToggle } from "../modeToggle/ModeToggle";
 
-const Sidebar = () => {
+const Sidebar = ({ role }: { role: string | null | undefined }) => {
   const menuItems = [
     {
       label: "Trang chủ",
@@ -61,6 +61,16 @@ const Sidebar = () => {
 
   const { userId, isLoaded } = useAuth();
 
+  const filteredMenuItems = menuItems.filter((item) => {
+    if (item.href.includes("/manage/member") || item.href.includes("/manage/order") || item.href.includes("/manage/comment") || item.href.includes("/manage/rating")) {
+      return role === "ADMIN";
+    }
+    if (item.href.includes("/manage/course")) {
+      return role === "ADMIN" || role === "EXPERT";
+    }
+    return true;
+  });
+
   return (
     <aside
       className="sticky top-0 left-0 z-40 w-64 xl:w-72 flex-shrink-0
@@ -93,7 +103,7 @@ const Sidebar = () => {
 
 
       <nav className="flex-1 space-y-1.5">
-        {menuItems.map((item, index) => (
+        {filteredMenuItems.map((item, index) => (
           <ActiveLink key={index} item={item} />
         ))}
       </nav>

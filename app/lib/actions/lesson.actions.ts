@@ -5,6 +5,7 @@ import Lecture from "@/database/lecture.model";
 import Course from "@/database/course.model";
 import { connectToDatabase } from "../mongoose";
 import { revalidatePath } from "next/cache";
+import { isExpert } from "../auth";
 import slugify from "slugify";
 import { ELessonType } from "@/app/types/enums";
 
@@ -20,6 +21,9 @@ export async function createLesson(params: {
     order?: number;
 }) {
     try {
+        if (!await isExpert()) {
+            return { success: false, message: "Unauthorized" };
+        }
         await connectToDatabase();
 
         const course = await Course.findOne({ slug: params.courseSlug }).lean();
@@ -83,6 +87,9 @@ export async function updateLesson(params: {
     order?: number;
 }) {
     try {
+        if (!await isExpert()) {
+            return { success: false, message: "Unauthorized" };
+        }
         await connectToDatabase();
 
         const updateData: any = {};
@@ -125,6 +132,9 @@ export async function updateLesson(params: {
 
 export async function deleteLesson(lessonId: string) {
     try {
+        if (!await isExpert()) {
+            return { success: false, message: "Unauthorized" };
+        }
         await connectToDatabase();
 
         const lesson = await Lesson.findByIdAndUpdate(
@@ -152,6 +162,9 @@ export async function reorderLessons(params: {
     lessonIds: string[];
 }) {
     try {
+        if (!await isExpert()) {
+            return { success: false, message: "Unauthorized" };
+        }
         await connectToDatabase();
 
 

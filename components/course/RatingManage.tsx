@@ -19,6 +19,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { deleteRating } from "@/app/lib/actions/rating.actions";
+import { usePagination } from "@/app/lib/hooks/usePagination";
+import { Pagination } from "@/components/common/Pagination";
 
 interface RatingManageProps {
     ratings: any[];
@@ -37,6 +39,18 @@ const RatingManage = ({ ratings }: RatingManageProps) => {
             return matchesSearch;
         });
     }, [ratings, searchQuery]);
+
+    const {
+        currentPage,
+        totalPages,
+        paginatedItems,
+        startIndex,
+        endIndex,
+        goToPage,
+    } = usePagination({
+        items: filteredRatings,
+        itemsPerPage: 10,
+    });
 
     const handleDelete = async (courseId: string, userId: string, ratingId: string) => {
         if (!confirm("Bạn có chắc chắn muốn xóa đánh giá này?")) return;
@@ -94,7 +108,7 @@ const RatingManage = ({ ratings }: RatingManageProps) => {
             </Card>
 
             <div className="space-y-4">
-                {filteredRatings.length === 0 ? (
+                {paginatedItems.length === 0 ? (
                     <Card className="border-2 border-dashed border-gray-300 dark:border-gray-700">
                         <CardContent className="p-12 text-center">
                             <Star className="w-16 h-16 mx-auto text-gray-400 dark:text-gray-600 mb-4" />
@@ -104,57 +118,71 @@ const RatingManage = ({ ratings }: RatingManageProps) => {
                         </CardContent>
                     </Card>
                 ) : (
-                    filteredRatings.map((rating, idx) => {
-                        const ratingId = `${rating._id}-${idx}`; // Combination ID for UI state
-                        return (
-                            <Card key={ratingId} className="group border-2 border-gray-100 dark:border-gray-800 hover:border-yellow-200 transition-all duration-300">
-                                <CardContent className="p-6">
-                                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                                        <div className="flex gap-4">
-                                            <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0 border-2 border-yellow-100">
-                                                <NextImage
-                                                    src={rating.user?.avatar || "/default-avatar.png"}
-                                                    alt={rating.user?.name || "User"}
-                                                    fill
-                                                    className="object-cover"
-                                                />
-                                            </div>
-                                            <div className="space-y-1">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="font-bold text-gray-900 dark:text-white">
-                                                        {rating.user?.name || "Người dùng"}
-                                                    </span>
-                                                    <div className="flex items-center bg-yellow-400/10 text-yellow-600 px-2 py-0.5 rounded-full text-xs font-bold border border-yellow-200">
-                                                        <Star className="w-3 h-3 fill-current mr-1" />
-                                                        {rating.rating}
+                    <>
+                        <div className="space-y-4">
+                            {paginatedItems.map((rating, idx) => {
+                                const ratingId = `${rating._id}-${idx}`; // Combination ID for UI state
+                                return (
+                                    <Card key={ratingId} className="group border-2 border-gray-100 dark:border-gray-800 hover:border-yellow-200 transition-all duration-300">
+                                        <CardContent className="p-6">
+                                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                                <div className="flex gap-4">
+                                                    <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0 border-2 border-yellow-100">
+                                                        <NextImage
+                                                            src={rating.user?.avatar || "/default-avatar.png"}
+                                                            alt={rating.user?.name || "User"}
+                                                            fill
+                                                            className="object-cover"
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="font-bold text-gray-900 dark:text-white">
+                                                                {rating.user?.name || "Người dùng"}
+                                                            </span>
+                                                            <div className="flex items-center bg-yellow-400/10 text-yellow-600 px-2 py-0.5 rounded-full text-xs font-bold border border-yellow-200">
+                                                                <Star className="w-3 h-3 fill-current mr-1" />
+                                                                {rating.rating}
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5 text-sm text-indigo-600 font-medium">
+                                                            <BookOpen className="w-3.5 h-3.5" />
+                                                            <span>{rating.title}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                                            <Clock className="w-3 h-3" />
+                                                            <span>Cách đây: {formatDistanceToNow(new Date(rating.createdAt), { addSuffix: false, locale: vi })}</span>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center gap-1.5 text-sm text-indigo-600 font-medium">
-                                                    <BookOpen className="w-3.5 h-3.5" />
-                                                    <span>{rating.title}</span>
-                                                </div>
-                                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                                    <Clock className="w-3 h-3" />
-                                                    <span>Cách đây: {formatDistanceToNow(new Date(rating.createdAt), { addSuffix: false, locale: vi })}</span>
-                                                </div>
-                                            </div>
-                                        </div>
 
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="border-red-200 text-red-600 hover:bg-red-50 md:self-center"
-                                            onClick={() => handleDelete(rating._id, rating.user?._id, ratingId)}
-                                            disabled={isDeleting === ratingId}
-                                        >
-                                            <Trash2 className="w-4 h-4 mr-2" />
-                                            {isDeleting === ratingId ? "Đang xóa..." : "Xóa đánh giá"}
-                                        </Button>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        );
-                    })
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="border-red-200 text-red-600 hover:bg-red-50 md:self-center"
+                                                    onClick={() => handleDelete(rating._id, rating.user?._id, ratingId)}
+                                                    disabled={isDeleting === ratingId}
+                                                >
+                                                    <Trash2 className="w-4 h-4 mr-2" />
+                                                    {isDeleting === ratingId ? "Đang xóa..." : "Xóa đánh giá"}
+                                                </Button>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                );
+                            })}
+                        </div>
+
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            totalItems={filteredRatings.length}
+                            startIndex={startIndex}
+                            endIndex={endIndex}
+                            onPageChange={goToPage}
+                            itemLabel="đánh giá"
+                        />
+                    </>
                 )}
             </div>
         </div>

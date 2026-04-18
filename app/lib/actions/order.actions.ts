@@ -7,6 +7,7 @@ import { auth } from "@clerk/nextjs/server";
 import { EOrderStatus, EPaymentMethod } from "@/app/types/enums";
 import { generateOrderNumber } from "../utils/order.utils";
 import { clearCart } from "./cart.actions";
+import { isAdmin } from "../auth";
 
 /**
  * Create order from cart items
@@ -58,15 +59,25 @@ export async function createOrder(items: Array<{
  */
 export async function getOrderByNumber(orderNumber: string) {
     try {
+        const { userId } = await auth();
+        if (!userId) return { success: false, message: "Unauthorized" };
+
         await connectToDatabase();
 
         const order = await Order.findOne({ orderNumber })
-            .populate("user", "name email")
+            .populate("user", "name email clerkId")
             .populate("items.course")
             .lean();
 
         if (!order) {
             return { success: false, message: "Order not found" };
+        }
+
+        const isOwner = (order.user as any).clerkId === userId;
+        const admin = await isAdmin();
+
+        if (!isOwner && !admin) {
+            return { success: false, message: "Unauthorized" };
         }
 
         return {
@@ -116,6 +127,9 @@ export async function getUserOrders() {
  */
 export async function getAllOrders() {
     try {
+        if (!await isAdmin()) {
+            return [];
+        }
         await connectToDatabase();
 
         const orders = await Order.find()
@@ -136,6 +150,9 @@ export async function getAllOrders() {
  */
 export async function updateOrderStatus(orderNumber: string, status: EOrderStatus) {
     try {
+        if (!await isAdmin()) {
+            return { success: false, message: "Unauthorized" };
+        }
         await connectToDatabase();
 
         const order = await Order.findOne({ orderNumber });
